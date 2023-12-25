@@ -1,0 +1,26 @@
+name: content_cache_devtools_extension
+description: content_cache_devtools_extension
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  meta: ^1.10.0
+  di_visualizer_annotation: ^0.0.1
+  devtools_extensions: ^0.0.10
+  devtools_app_shared: ^0.0.8
+  vm_service: ^13.0.0
+
+  # content_cache:
+  #   path: ../content_cache
+
+dev_dependencies:
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
