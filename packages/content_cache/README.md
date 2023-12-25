@@ -7,19 +7,20 @@
 simple key-value cache with Devtools Extension support
 
 # Usage
-### 1. install
+## 1. install
 dart pub add content_cache
 
-### 2. methods
-* Stream<Object> get onChangeStream;
-* void save<T>(Object key, T content, {Duration ttl});
-* bool isExists(Object key);
-* T? retrieve<T>(Object key);
-* T retrieveOrDefault<T>(Object key, T defaultVal);
-* void clearAll();
-* void remove(Object key);
-* void dispose();
-
+## 2. methods
+```dart
+Stream<Object> get onChangeStream
+void save<T>(Object key, T content, {Duration ttl})
+bool isExists(Object key)
+T? retrieve<T>(Object key)
+T retrieveOrDefault<T>(Object key, T defaultVal)
+void clearAll()
+void remove(Object key)
+void dispose()
+```
 
 # Devtools
 also this package allows you to see the cache data real-time
