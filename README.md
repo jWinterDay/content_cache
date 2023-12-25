@@ -24,7 +24,7 @@ dart pub add content_cache
 # Devtools
 also this package allows you to see the cache data real-time
 
-![Screenshot](images/devtools_1.png)
+![Screenshot](packages/content_cache/images/devtools_1.png)
 
 
 # Example
