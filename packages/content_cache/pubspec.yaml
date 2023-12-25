@@ -1,6 +1,6 @@
 name: content_cache
 description: content_cache
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/jWinterDay/content_cache
 
 environment:
