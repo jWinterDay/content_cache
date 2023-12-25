@@ -16,6 +16,7 @@ dependencies:
   devtools_app_shared: ^0.0.8
   vm_service: ^13.0.0
   intl: ^0.18.0
+  expandable_text: ^2.3.0
 
   # content_cache:
   #   path: ../content_cache

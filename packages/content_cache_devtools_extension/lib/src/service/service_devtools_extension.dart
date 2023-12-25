@@ -8,8 +8,10 @@ import 'dart:async';
 
 import 'package:content_cache_devtools_extension/src/service/service_cache_data.dart';
 import 'package:content_cache_devtools_extension/src/service/service_runner.dart';
+import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter/services.dart';
+// import 'package:devtools_app_shared/ui.dart' as dtui;
 import 'service_state.dart';
 
 class ServiceDevtoolsExtension extends StatefulWidget {
@@ -20,7 +22,7 @@ class ServiceDevtoolsExtension extends StatefulWidget {
 }
 
 class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
-  final ServiceRunner _runner = ServiceRunner();
+  late final ServiceRunner _runner = ServiceRunner();
 
   Timer? _fetchTimer;
 
@@ -67,14 +69,18 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
 
             Row(
               children: <Widget>[
-                ElevatedButton(
-                  onPressed: _runner.fetchAll,
-                  child: const Text('Fetch all'),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _runner.fetchAll,
+                    child: const Text('Fetch all'),
+                  ),
                 ),
                 const SizedBox(width: 32),
-                ElevatedButton(
-                  onPressed: () => _runner.clear(null),
-                  child: const Text('Clear all'),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => _runner.clear(null),
+                    child: const Text('Clear all'),
+                  ),
                 ),
               ],
             ),
@@ -100,55 +106,96 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
                       child: Card(
                         child: Padding(
                           padding: const EdgeInsets.all(12),
-                          child: Row(
+                          child: Column(
                             children: <Widget>[
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    // key name
-                                    Padding(
+                              // title and buttons
+                              Row(
+                                children: <Widget>[
+                                  // key name
+                                  Expanded(
+                                    child: Padding(
                                       padding: const EdgeInsets.only(bottom: 2),
                                       child: Text(
                                         key,
                                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                               fontWeight: FontWeight.w600,
                                               fontSize: 18,
+                                              color: Colors.blue,
                                             ),
                                       ),
                                     ),
+                                  ),
 
-                                    if (data == null) ...<Widget>[
-                                      const Placeholder(fallbackHeight: 20),
-                                    ] else ...<Widget>[
-                                      // remain
-                                      Padding(
-                                        padding: const EdgeInsets.only(bottom: 6),
-                                        child: Text(
-                                          data.remainTtl >= 0
-                                              ? 'remain(sec): ${data.remainTtl}'
-                                              : 'expired',
-                                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 16,
-                                              ),
-                                        ),
+                                  // remains
+                                  if (data != null) ...<Widget>[
+                                    // remains
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 6),
+                                      child: Text(
+                                        data.remainTtl >= 0
+                                            ? 'remain(sec): ${data.remainTtl}'
+                                            : 'expired',
+                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16,
+                                            ),
                                       ),
-                                    ],
+                                    ),
+                                  ],
 
-                                    // content
-                                    Text(data.toString()),
+                                  // clear
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                                    child: IconButton(
+                                      tooltip: 'Remove from contentCache',
+                                      onPressed: () {
+                                        _runner.clear(key);
+                                      },
+                                      icon: const Icon(Icons.delete_forever_outlined),
+                                    ),
+                                  ),
+
+                                  // copy all
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 12),
+                                    child: IconButton(
+                                      tooltip: 'Copy content',
+                                      onPressed: data == null
+                                          ? null
+                                          : () {
+                                              Clipboard.setData(ClipboardData(text: data.content));
+                                            },
+                                      icon: const Icon(Icons.copy),
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              // content
+                              if (data != null) ...<Widget>[
+                                Row(
+                                  children: <Widget>[
+                                    Expanded(
+                                      child: Text('date: ${data.date}'),
+                                    ),
+                                    Text('ttl(sec): ${data.ttl}'),
                                   ],
                                 ),
-                              ),
 
-                              // clear
-                              IconButton(
-                                onPressed: () {
-                                  _runner.clear(key);
-                                },
-                                icon: const Icon(Icons.delete_forever_outlined),
-                              ),
+                                //
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 12),
+                                  child: ExpandableText(
+                                    data.content,
+                                    expandText: 'show more',
+                                    collapseText: 'show less',
+                                    maxLines: 3,
+                                    linkColor: Colors.blue,
+                                  ),
+
+                                  //  SelectableText(data.content),
+                                ),
+                              ],
                             ],
                           ),
                         ),

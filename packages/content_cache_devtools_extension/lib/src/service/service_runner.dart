@@ -33,11 +33,16 @@ class ServiceRunner extends ValueNotifier<ServiceState> {
       final Response response = await serviceManager.callServiceExtensionOnMainIsolate(
         'ext.content_cache.getAll',
       );
-
-      // final Map<String, ServiceCacheData> result = _parseResult(response);
       final Map<String, ServiceCacheData> result = await compute(_parseResult, response);
 
-      _parseResult(response);
+      // fake
+      // final Map<String, ServiceCacheData> result = <String, ServiceCacheData>{
+      //   'test1': ServiceCacheData(
+      //     content: List.generate(500, (index) => '$index').join(),
+      //     ttl: 666,
+      //     date: DateTime.now().toString(),
+      //   ),
+      // };
 
       value = ServiceState(
         date: DateTime.now(),

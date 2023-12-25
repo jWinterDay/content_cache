@@ -36,7 +36,7 @@ class ServiceCacheData {
 
   @override
   String toString() {
-    return 'date: $fmtDateTimeStr\nttl: $ttl\ncontent: $content';
+    return 'date: $fmtDateTimeStr\nttl(sec): $ttl\ncontent: $content';
   }
 
   int get remainTtl {
