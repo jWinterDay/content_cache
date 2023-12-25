@@ -25,6 +25,7 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
   late final ServiceRunner _runner = ServiceRunner();
 
   Timer? _fetchTimer;
+  bool _showExpired = true;
 
   @override
   void initState() {
@@ -60,6 +61,17 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
     return ValueListenableBuilder<ServiceState>(
       valueListenable: _runner,
       builder: (BuildContext _, ServiceState state, Widget? child) {
+        final Map<String, ServiceCacheData> filteredContentCacheData = state.contentCacheData
+          ..removeWhere((String key, ServiceCacheData value) {
+            if (_showExpired) {
+              return false;
+            }
+
+            final bool itemExpired = value.remainTtl < 0;
+
+            return itemExpired;
+          });
+
         //
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,20 +79,36 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
             if (state.date != null) Text(state.date.toString()),
             if (state.message != null) Text(state.message!),
 
+            // Text(
+            //     '----expired === $_showExpired filteredContentCacheData = ${filteredContentCacheData.keys}'),
+
             Row(
               children: <Widget>[
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _runner.fetchAll,
-                    child: const Text('Fetch all'),
-                  ),
+                ElevatedButton(
+                  onPressed: _runner.fetchAll,
+                  child: const Text('Fetch all'),
                 ),
                 const SizedBox(width: 32),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => _runner.clear(null),
-                    child: const Text('Clear all'),
-                  ),
+                ElevatedButton(
+                  onPressed: () => _runner.clear(null),
+                  child: const Text('Clear all'),
+                ),
+
+                // show expired
+                const SizedBox(width: 32),
+
+                Row(
+                  children: <Widget>[
+                    const Text('Show Expired'),
+                    Checkbox(
+                      value: _showExpired,
+                      onChanged: (bool? val) {
+                        setState(() {
+                          _showExpired = !_showExpired;
+                        });
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -89,17 +117,17 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
 
             // if (_loading) const LinearProgressIndicator(),
 
-            if (state.contentCacheData.isEmpty)
+            if (filteredContentCacheData.isEmpty)
               const Expanded(
                 child: Text('ContentCache. No data'),
               )
             else
               Expanded(
                 child: ListView.builder(
-                  itemCount: state.contentCacheData.length,
+                  itemCount: filteredContentCacheData.length,
                   itemBuilder: (BuildContext _, int index) {
-                    final String key = state.contentCacheData.keys.elementAt(index);
-                    final ServiceCacheData? data = state.contentCacheData[key];
+                    final String key = filteredContentCacheData.keys.elementAt(index);
+                    final ServiceCacheData? data = filteredContentCacheData[key];
 
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -107,58 +135,58 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
                         child: Padding(
                           padding: const EdgeInsets.all(12),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               // title and buttons
                               Row(
                                 children: <Widget>[
                                   // key name
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(bottom: 2),
-                                      child: Text(
-                                        key,
-                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 18,
-                                              color: Colors.blue,
-                                            ),
-                                      ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      right: 12,
+                                      bottom: 6,
+                                    ),
+                                    child: Text(
+                                      key,
+                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 18,
+                                            color: Colors.blue,
+                                          ),
                                     ),
                                   ),
 
                                   // remains
                                   if (data != null) ...<Widget>[
-                                    // remains
-                                    Padding(
-                                      padding: const EdgeInsets.only(bottom: 6),
-                                      child: Text(
-                                        data.remainTtl >= 0
-                                            ? 'remain(sec): ${data.remainTtl}'
-                                            : 'expired',
-                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
-                                            ),
-                                      ),
+                                    Text(
+                                      data.remainTtl >= 0
+                                          ? 'remain(sec): ${data.remainTtl}'
+                                          : 'expired',
+                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16,
+                                          ),
                                     ),
                                   ],
 
-                                  // clear
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                                    child: IconButton(
-                                      tooltip: 'Remove from contentCache',
-                                      onPressed: () {
-                                        _runner.clear(key);
-                                      },
-                                      icon: const Icon(Icons.delete_forever_outlined),
-                                    ),
-                                  ),
+                                  const Spacer(),
 
-                                  // copy all
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 12),
-                                    child: IconButton(
+                                  // actions
+                                  ...<Widget>[
+                                    // clear
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 12),
+                                      child: IconButton(
+                                        tooltip: 'Remove from contentCache',
+                                        onPressed: () {
+                                          _runner.clear(key);
+                                        },
+                                        icon: const Icon(Icons.delete_forever_outlined),
+                                      ),
+                                    ),
+
+                                    // copy all
+                                    IconButton(
                                       tooltip: 'Copy content',
                                       onPressed: data == null
                                           ? null
@@ -167,7 +195,7 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
                                             },
                                       icon: const Icon(Icons.copy),
                                     ),
-                                  ),
+                                  ],
                                 ],
                               ),
 
