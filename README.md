@@ -20,6 +20,8 @@ dart pub add content_cache
 * void remove(Object key);
 * void dispose();
 
+# Developing
+flutter run -d chrome --dart-define=use_simulated_environment=true
 
 # Devtools
 also this package allows you to see the cache data real-time

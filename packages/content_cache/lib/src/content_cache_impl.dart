@@ -45,16 +45,16 @@ class ContentCacheImpl implements ContentCache {
   static const String _clearName = 'ext.content_cache.clearAll';
 
   ServiceExtensionResponse _serviceResponse() {
-    final DateTime now = DateTime.now();
+    // final DateTime now = DateTime.now();
 
     // check expired
-    final Map<Object, Info<dynamic>> tmpCache = <Object, Info<dynamic>>{...cache};
-    tmpCache.forEach((Object key, Info<dynamic> value) {
-      final bool isExpired = value.date.add(value.ttl).isBefore(now);
-      if (isExpired) {
-        cache.remove(key);
-      }
-    });
+    // final Map<Object, Info<dynamic>> tmpCache = <Object, Info<dynamic>>{...cache};
+    // tmpCache.forEach((Object key, Info<dynamic> value) {
+    //   final bool isExpired = value.date.add(value.ttl).isBefore(now);
+    //   if (isExpired) {
+    //     cache.remove(key);
+    //   }
+    // });
 
     try {
       final Map<String, dynamic> fmt = cache.map((Object key, Info<dynamic> value) {
