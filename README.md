@@ -33,7 +33,7 @@ also this package allows you to see the cache data real-time
 import 'package:content_cache/content_cache.dart';
 
 void main() {
-    final ContentCache contentCache = ContentCacheImpl();
+    final ContentCache contentCache = ContentCacheImpl.instance;
 
     contentCache.save('counterKey', 'test1');
 }

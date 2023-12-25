@@ -1,3 +1,5 @@
+## 0.0.5
+    fix readme
 ## 0.0.4
     fix readme
 ## 0.0.3
