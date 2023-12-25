@@ -1,5 +1,7 @@
 import 'dart:developer';
 
+import 'package:intl/intl.dart';
+
 class ServiceCacheData {
   ServiceCacheData({
     required this.content,
@@ -8,6 +10,10 @@ class ServiceCacheData {
   }) {
     try {
       fmtDateTime = DateTime.parse(date);
+
+      if (fmtDateTime != null) {
+        fmtDateTimeStr = DateFormat(DateFormat.HOUR24_MINUTE_SECOND).format(fmtDateTime!);
+      }
     } on Object catch (err) {
       log('ServiceCacheData. date parse err: $err');
     }
@@ -26,10 +32,11 @@ class ServiceCacheData {
   final String date;
 
   DateTime? fmtDateTime;
+  String? fmtDateTimeStr;
 
   @override
   String toString() {
-    return 'date: $date\nttl: $ttl\ncontent: $content';
+    return 'date: $fmtDateTimeStr\nttl: $ttl\ncontent: $content';
   }
 
   int get remainTtl {
