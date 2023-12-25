@@ -8,10 +8,22 @@ import 'dart:async';
 
 import 'package:content_cache_devtools_extension/src/service/service_cache_data.dart';
 import 'package:devtools_extensions/devtools_extensions.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:vm_service/vm_service.dart';
 
 import 'service_state.dart';
+
+Map<String, ServiceCacheData> _parseResult(Response response) {
+  final Map<String, dynamic> raw = response.json ?? <String, dynamic>{};
+
+  final Map<String, ServiceCacheData> result = raw.map((String key, dynamic value) {
+    final ServiceCacheData data = ServiceCacheData.fromJson(value);
+
+    return MapEntry<String, ServiceCacheData>(key, data);
+  });
+
+  return result;
+}
 
 class ServiceRunner extends ValueNotifier<ServiceState> {
   ServiceRunner() : super(ServiceState());
@@ -22,13 +34,10 @@ class ServiceRunner extends ValueNotifier<ServiceState> {
         'ext.content_cache.getAll',
       );
 
-      final Map<String, dynamic> raw = response.json ?? <String, dynamic>{};
+      // final Map<String, ServiceCacheData> result = _parseResult(response);
+      final Map<String, ServiceCacheData> result = await compute(_parseResult, response);
 
-      final Map<String, ServiceCacheData> result = raw.map((String key, dynamic value) {
-        final ServiceCacheData data = ServiceCacheData.fromJson(value);
-
-        return MapEntry<String, ServiceCacheData>(key, data);
-      });
+      _parseResult(response);
 
       value = ServiceState(
         date: DateTime.now(),
@@ -56,13 +65,8 @@ class ServiceRunner extends ValueNotifier<ServiceState> {
               },
       );
 
-      final Map<String, dynamic> raw = response.json ?? <String, dynamic>{};
-
-      final Map<String, ServiceCacheData> result = raw.map((String key, dynamic value) {
-        final ServiceCacheData data = ServiceCacheData.fromJson(value);
-
-        return MapEntry<String, ServiceCacheData>(key, data);
-      });
+      // final Map<String, ServiceCacheData> result = _parseResult(response);
+      final Map<String, ServiceCacheData> result = await compute(_parseResult, response);
 
       value = ServiceState(
         date: DateTime.now(),
