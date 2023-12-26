@@ -1,17 +1,9 @@
-// Copyright 2023 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
-// ignore_for_file: avoid_print
-
 import 'dart:async';
 
-import 'package:content_cache_devtools_extension/src/service/service_cache_data.dart';
+import 'package:content_cache_devtools_extension/src/index.dart';
 import 'package:devtools_extensions/devtools_extensions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:vm_service/vm_service.dart';
-
-import 'service_state.dart';
 
 Map<String, ServiceCacheData> _parseResult(Response response) {
   final Map<String, dynamic> raw = response.json ?? <String, dynamic>{};
@@ -26,7 +18,27 @@ Map<String, ServiceCacheData> _parseResult(Response response) {
 }
 
 class ServiceRunner extends ValueNotifier<ServiceState> {
-  ServiceRunner() : super(ServiceState());
+  ServiceRunner() : super(const ServiceState());
+
+  Map<String, ServiceCacheData> get _expired {
+    return <String, ServiceCacheData>{...value.contentCacheData}
+      ..removeWhere((String key, ServiceCacheData value) {
+        final bool itemExpired = value.remainTtl < 0;
+
+        return itemExpired;
+      });
+  }
+
+  void toggleShowExpired() {
+    final bool nextShowExpired = !value.showExpired;
+
+    value = value.copyWith(
+      showExpired: nextShowExpired,
+      expiredContentCacheData: nextShowExpired ? <String, ServiceCacheData>{} : _expired,
+    );
+
+    notifyListeners();
+  }
 
   Future<void> fetchAll() async {
     try {
@@ -44,9 +56,10 @@ class ServiceRunner extends ValueNotifier<ServiceState> {
       //   ),
       // };
 
-      value = ServiceState(
+      value = value.copyWith(
         date: DateTime.now(),
         contentCacheData: result,
+        expiredContentCacheData: _expired,
         message: 'Successfully fetched ${result.length} items',
       );
     } on Object catch (err) {
@@ -73,13 +86,14 @@ class ServiceRunner extends ValueNotifier<ServiceState> {
       // final Map<String, ServiceCacheData> result = _parseResult(response);
       final Map<String, ServiceCacheData> result = await compute(_parseResult, response);
 
-      value = ServiceState(
+      value = value.copyWith(
         date: DateTime.now(),
         contentCacheData: result,
+        expiredContentCacheData: _expired,
         message: 'Successfully clear. Key: $key',
       );
     } on Object catch (err) {
-      value = ServiceState(
+      value = value.copyWith(
         date: DateTime.now(),
         message: 'Error $err',
       );

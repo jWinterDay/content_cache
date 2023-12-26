@@ -1,18 +1,9 @@
-// Copyright 2023 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
-// ignore_for_file: avoid_print
-
 import 'dart:async';
 
-import 'package:content_cache_devtools_extension/src/service/service_cache_data.dart';
-import 'package:content_cache_devtools_extension/src/service/service_runner.dart';
+import 'package:content_cache_devtools_extension/src/index.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import 'package:devtools_app_shared/ui.dart' as dtui;
-import 'service_state.dart';
 
 class ServiceDevtoolsExtension extends StatefulWidget {
   const ServiceDevtoolsExtension({super.key});
@@ -25,7 +16,7 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
   late final ServiceRunner _runner = ServiceRunner();
 
   Timer? _fetchTimer;
-  bool _showExpired = true;
+  // bool _showExpired = true;
 
   @override
   void initState() {
@@ -61,26 +52,15 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
     return ValueListenableBuilder<ServiceState>(
       valueListenable: _runner,
       builder: (BuildContext _, ServiceState state, Widget? child) {
-        final Map<String, ServiceCacheData> filteredContentCacheData = state.contentCacheData
-          ..removeWhere((String key, ServiceCacheData value) {
-            if (_showExpired) {
-              return false;
-            }
-
-            final bool itemExpired = value.remainTtl < 0;
-
-            return itemExpired;
-          });
-
-        //
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             if (state.date != null) Text(state.date.toString()),
             if (state.message != null) Text(state.message!),
 
-            // Text(
-            //     '----expired === $_showExpired filteredContentCacheData = ${filteredContentCacheData.keys}'),
+            Text(
+              '----expired === ${state.showExpired} filteredContentCacheData = ${state.expiredContentCacheData.keys} all = ${state.contentCacheData}',
+            ),
 
             Row(
               children: <Widget>[
@@ -101,11 +81,9 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
                   children: <Widget>[
                     const Text('Show Expired'),
                     Checkbox(
-                      value: _showExpired,
+                      value: state.showExpired,
                       onChanged: (bool? val) {
-                        setState(() {
-                          _showExpired = !_showExpired;
-                        });
+                        _runner.toggleShowExpired();
                       },
                     ),
                   ],
@@ -117,17 +95,17 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
 
             // if (_loading) const LinearProgressIndicator(),
 
-            if (filteredContentCacheData.isEmpty)
+            if (state.resultUiShownData.isEmpty)
               const Expanded(
                 child: Text('ContentCache. No data'),
               )
             else
               Expanded(
                 child: ListView.builder(
-                  itemCount: filteredContentCacheData.length,
+                  itemCount: state.resultUiShownData.length,
                   itemBuilder: (BuildContext _, int index) {
-                    final String key = filteredContentCacheData.keys.elementAt(index);
-                    final ServiceCacheData? data = filteredContentCacheData[key];
+                    final String key = state.resultUiShownData.keys.elementAt(index);
+                    final ServiceCacheData? data = state.resultUiShownData[key];
 
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -204,7 +182,7 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
                                 Row(
                                   children: <Widget>[
                                     Expanded(
-                                      child: Text('date: ${data.date}'),
+                                      child: Text('create date: ${data.date}'),
                                     ),
                                     Text('ttl(sec): ${data.ttl}'),
                                   ],

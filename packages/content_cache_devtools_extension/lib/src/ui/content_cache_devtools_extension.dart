@@ -7,7 +7,7 @@ import 'package:devtools_extensions/devtools_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:devtools_app_shared/ui.dart';
 
-import 'service/service_devtools_extension.dart';
+import 'service_devtools_extension.dart';
 
 class ContentCacheDevToolsExtension extends StatelessWidget {
   const ContentCacheDevToolsExtension({super.key});
