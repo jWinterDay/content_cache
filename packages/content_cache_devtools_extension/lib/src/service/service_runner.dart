@@ -20,6 +20,17 @@ Map<String, ServiceCacheData> _parseResult(Response response) {
 class ServiceRunner extends ValueNotifier<ServiceState> {
   ServiceRunner() : super(const ServiceState());
 
+  StreamSubscription<Event>? _vmServiceSubscription;
+
+  // subscribe
+  void subscribeExtension() {
+    _vmServiceSubscription = serviceManager.service?.onExtensionEvent.where((Event event) {
+      return event.extensionKind == 'content_cache:content_cache_changed';
+    }).listen((Event event) {
+      fetchAll();
+    });
+  }
+
   Map<String, ServiceCacheData> get _expired {
     return <String, ServiceCacheData>{...value.contentCacheData}
       ..removeWhere((String key, ServiceCacheData value) {
@@ -100,5 +111,12 @@ class ServiceRunner extends ValueNotifier<ServiceState> {
     }
 
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _vmServiceSubscription?.cancel();
+
+    super.dispose();
   }
 }

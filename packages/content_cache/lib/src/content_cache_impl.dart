@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:content_cache/content_cache.dart';
 import 'package:meta/meta.dart';
+import 'dart:developer' as developer;
 
 @visibleForTesting
 class Info<T> {
@@ -184,7 +185,11 @@ class ContentCacheImpl implements ContentCache {
     unawaited(onChangeStreamController.close());
   }
 
-  void _notify() {
+  void _notify({
+    Map<dynamic, dynamic> data = const <dynamic, dynamic>{},
+  }) {
+    developer.postEvent('content_cache:content_cache_changed', data);
+
     // final Map<String, dynamic> fmt = cache.map((Object key, Info<dynamic> value) {
     //   return MapEntry<String, dynamic>(
     //     key.toString(),

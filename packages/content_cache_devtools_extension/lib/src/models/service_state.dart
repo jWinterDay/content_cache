@@ -22,6 +22,7 @@ class ServiceState with _$ServiceState {
     // custom
     @Default(true) bool showExpired,
     @Default(<String, ServiceCacheData>{}) Map<String, ServiceCacheData> expiredContentCacheData,
+    // String? eventData,
   }) = _ServiceState;
 
   factory ServiceState.fromJson(Map<String, dynamic> json) => _$ServiceStateFromJson(json);

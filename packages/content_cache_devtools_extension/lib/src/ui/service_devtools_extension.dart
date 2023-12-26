@@ -13,7 +13,7 @@ class ServiceDevtoolsExtension extends StatefulWidget {
 }
 
 class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
-  late final ServiceRunner _runner = ServiceRunner();
+  late ServiceRunner _runner;
 
   Timer? _fetchTimer;
   // bool _showExpired = true;
@@ -22,15 +22,22 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
   void initState() {
     super.initState();
 
+    _runner = ServiceRunner();
+
+    // subscribe
+    _runner.subscribeExtension();
+
+    // fetch
     _runner.fetchAll();
 
-    _fetchTimer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
-      if (!mounted) {
-        return;
-      }
+    // TODO
+    // _fetchTimer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+    //   if (!mounted) {
+    //     return;
+    //   }
 
-      _runner.fetchAll();
-    });
+    //   _runner.fetchAll();
+    // });
   }
 
   @override
@@ -57,6 +64,8 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
           children: <Widget>[
             if (state.date != null) Text(state.date.toString()),
             if (state.message != null) Text(state.message!),
+
+            Text('event = ${state.eventData}'),
 
             // Text(
             //   '----expired === ${state.showExpired} filteredContentCacheData = ${state.expiredContentCacheData.keys} all = ${state.contentCacheData}',
