@@ -58,9 +58,9 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
             if (state.date != null) Text(state.date.toString()),
             if (state.message != null) Text(state.message!),
 
-            Text(
-              '----expired === ${state.showExpired} filteredContentCacheData = ${state.expiredContentCacheData.keys} all = ${state.contentCacheData}',
-            ),
+            // Text(
+            //   '----expired === ${state.showExpired} filteredContentCacheData = ${state.expiredContentCacheData.keys} all = ${state.contentCacheData}',
+            // ),
 
             Row(
               children: <Widget>[
@@ -102,6 +102,7 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
             else
               Expanded(
                 child: ListView.builder(
+                  // reverse: true,
                   itemCount: state.resultUiShownData.length,
                   itemBuilder: (BuildContext _, int index) {
                     final String key = state.resultUiShownData.keys.elementAt(index);

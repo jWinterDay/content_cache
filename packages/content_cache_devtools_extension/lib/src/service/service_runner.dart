@@ -14,7 +14,7 @@ Map<String, ServiceCacheData> _parseResult(Response response) {
     return MapEntry<String, ServiceCacheData>(key, data);
   });
 
-  return result;
+  return result.orderByDate();
 }
 
 class ServiceRunner extends ValueNotifier<ServiceState> {
