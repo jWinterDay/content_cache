@@ -1,18 +1,9 @@
-// Copyright 2023 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
-// ignore_for_file: avoid_print
-
 import 'dart:async';
 
-import 'package:content_cache_devtools_extension/src/service/service_cache_data.dart';
-import 'package:content_cache_devtools_extension/src/service/service_runner.dart';
+import 'package:content_cache_devtools_extension/src/index.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import 'package:devtools_app_shared/ui.dart' as dtui;
-import 'service_state.dart';
 
 class ServiceDevtoolsExtension extends StatefulWidget {
   const ServiceDevtoolsExtension({super.key});
@@ -22,24 +13,30 @@ class ServiceDevtoolsExtension extends StatefulWidget {
 }
 
 class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
-  late final ServiceRunner _runner = ServiceRunner();
+  late ServiceRunner _runner;
 
   Timer? _fetchTimer;
-  bool _showExpired = true;
+  // bool _showExpired = true;
 
   @override
   void initState() {
     super.initState();
 
+    _runner = ServiceRunner();
+
+    // subscribe
+    _runner.subscribeExtension();
+
+    // fetch
     _runner.fetchAll();
 
-    _fetchTimer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
-      if (!mounted) {
-        return;
-      }
+    // _fetchTimer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+    //   if (!mounted) {
+    //     return;
+    //   }
 
-      _runner.fetchAll();
-    });
+    //   _runner.fetchAll();
+    // });
   }
 
   @override
@@ -61,26 +58,17 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
     return ValueListenableBuilder<ServiceState>(
       valueListenable: _runner,
       builder: (BuildContext _, ServiceState state, Widget? child) {
-        final Map<String, ServiceCacheData> filteredContentCacheData = state.contentCacheData
-          ..removeWhere((String key, ServiceCacheData value) {
-            if (_showExpired) {
-              return false;
-            }
-
-            final bool itemExpired = value.remainTtl < 0;
-
-            return itemExpired;
-          });
-
-        //
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            if (state.date != null) Text(state.date.toString()),
+            if (state.fetchDateTimeStr != null) Text('fetch date: ${state.fetchDateTimeStr}'),
             if (state.message != null) Text(state.message!),
 
+            // Text('event = ${state.eventData}'),
+
             // Text(
-            //     '----expired === $_showExpired filteredContentCacheData = ${filteredContentCacheData.keys}'),
+            //   '----expired === ${state.showExpired} filteredContentCacheData = ${state.expiredContentCacheData.keys} all = ${state.contentCacheData}',
+            // ),
 
             Row(
               children: <Widget>[
@@ -97,19 +85,17 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
                 // show expired
                 const SizedBox(width: 32),
 
-                Row(
-                  children: <Widget>[
-                    const Text('Show Expired'),
-                    Checkbox(
-                      value: _showExpired,
-                      onChanged: (bool? val) {
-                        setState(() {
-                          _showExpired = !_showExpired;
-                        });
-                      },
-                    ),
-                  ],
-                ),
+                // Row(
+                //   children: <Widget>[
+                //     const Text('Show Expired'),
+                //     Checkbox(
+                //       value: state.showExpired,
+                //       onChanged: (bool? val) {
+                //         _runner.toggleShowExpired();
+                //       },
+                //     ),
+                //   ],
+                // ),
               ],
             ),
 
@@ -117,17 +103,18 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
 
             // if (_loading) const LinearProgressIndicator(),
 
-            if (filteredContentCacheData.isEmpty)
+            if (state.contentCacheData.isEmpty)
               const Expanded(
                 child: Text('ContentCache. No data'),
               )
             else
               Expanded(
                 child: ListView.builder(
-                  itemCount: filteredContentCacheData.length,
+                  // reverse: true,
+                  itemCount: state.contentCacheData.length,
                   itemBuilder: (BuildContext _, int index) {
-                    final String key = filteredContentCacheData.keys.elementAt(index);
-                    final ServiceCacheData? data = filteredContentCacheData[key];
+                    final String key = state.contentCacheData.keys.elementAt(index);
+                    final ServiceCacheData? data = state.contentCacheData[key];
 
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -157,17 +144,17 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
                                   ),
 
                                   // remains
-                                  if (data != null) ...<Widget>[
-                                    Text(
-                                      data.remainTtl >= 0
-                                          ? 'remain(sec): ${data.remainTtl}'
-                                          : 'expired',
-                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 16,
-                                          ),
-                                    ),
-                                  ],
+                                  // if (data != null) ...<Widget>[
+                                  //   Text(
+                                  //     data.remainTtl >= 0
+                                  //         ? 'remain(sec): ${data.remainTtl}'
+                                  //         : 'expired',
+                                  //     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  //           fontWeight: FontWeight.w600,
+                                  //           fontSize: 16,
+                                  //         ),
+                                  //   ),
+                                  // ],
 
                                   const Spacer(),
 
@@ -192,6 +179,20 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
                                           ? null
                                           : () {
                                               Clipboard.setData(ClipboardData(text: data.content));
+
+                                              ScaffoldMessenger.of(context)
+                                                ..clearSnackBars()
+                                                ..showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      'Content for key $key copied',
+                                                      // style: Theme.of(context).textTheme.bodyMedium,
+                                                    ),
+                                                    duration: const Duration(seconds: 5),
+                                                    // backgroundColor:
+                                                    //     context.dataColorsX.darkPrimary87,
+                                                  ),
+                                                );
                                             },
                                       icon: const Icon(Icons.copy),
                                     ),
@@ -203,8 +204,9 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
                               if (data != null) ...<Widget>[
                                 Row(
                                   children: <Widget>[
-                                    Expanded(
-                                      child: Text('date: ${data.date}'),
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 24),
+                                      child: Text('create date: ${data.fmtDateTimeStr}'),
                                     ),
                                     Text('ttl(sec): ${data.ttl}'),
                                   ],

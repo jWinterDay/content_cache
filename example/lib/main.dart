@@ -53,7 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter = nextCounter;
     });
 
-    _contentCache.save(_key(nextCounter), nextCounter);
+    _contentCache.save(_key(nextCounter), nextCounter, ttl: const Duration(seconds: 15));
   }
 
   @override

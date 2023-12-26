@@ -1,3 +1,5 @@
+## 0.0.8
+    refactoring
 ## 0.0.7
     ui improvements
 ## 0.0.6
