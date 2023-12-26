@@ -22,10 +22,7 @@ ServiceState _$ServiceStateFromJson(Map<String, dynamic> json) {
 mixin _$ServiceState {
   Map<String, ServiceCacheData> get contentCacheData => throw _privateConstructorUsedError;
   String? get message => throw _privateConstructorUsedError;
-  DateTime? get date => throw _privateConstructorUsedError; // custom
-  bool get showExpired => throw _privateConstructorUsedError;
-  Map<String, ServiceCacheData> get expiredContentCacheData => throw _privateConstructorUsedError;
-  String? get eventData => throw _privateConstructorUsedError;
+  DateTime? get fetchDate => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -36,13 +33,7 @@ mixin _$ServiceState {
 abstract class $ServiceStateCopyWith<$Res> {
   factory $ServiceStateCopyWith(ServiceState value, $Res Function(ServiceState) then) = _$ServiceStateCopyWithImpl<$Res, ServiceState>;
   @useResult
-  $Res call(
-      {Map<String, ServiceCacheData> contentCacheData,
-      String? message,
-      DateTime? date,
-      bool showExpired,
-      Map<String, ServiceCacheData> expiredContentCacheData,
-      String? eventData});
+  $Res call({Map<String, ServiceCacheData> contentCacheData, String? message, DateTime? fetchDate});
 }
 
 /// @nodoc
@@ -59,10 +50,7 @@ class _$ServiceStateCopyWithImpl<$Res, $Val extends ServiceState> implements $Se
   $Res call({
     Object? contentCacheData = null,
     Object? message = freezed,
-    Object? date = freezed,
-    Object? showExpired = null,
-    Object? expiredContentCacheData = null,
-    Object? eventData = freezed,
+    Object? fetchDate = freezed,
   }) {
     return _then(_value.copyWith(
       contentCacheData: null == contentCacheData
@@ -73,22 +61,10 @@ class _$ServiceStateCopyWithImpl<$Res, $Val extends ServiceState> implements $Se
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String?,
-      date: freezed == date
-          ? _value.date
-          : date // ignore: cast_nullable_to_non_nullable
+      fetchDate: freezed == fetchDate
+          ? _value.fetchDate
+          : fetchDate // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      showExpired: null == showExpired
-          ? _value.showExpired
-          : showExpired // ignore: cast_nullable_to_non_nullable
-              as bool,
-      expiredContentCacheData: null == expiredContentCacheData
-          ? _value.expiredContentCacheData
-          : expiredContentCacheData // ignore: cast_nullable_to_non_nullable
-              as Map<String, ServiceCacheData>,
-      eventData: freezed == eventData
-          ? _value.eventData
-          : eventData // ignore: cast_nullable_to_non_nullable
-              as String?,
     ) as $Val);
   }
 }
@@ -99,13 +75,7 @@ abstract class _$$ServiceStateImplCopyWith<$Res> implements $ServiceStateCopyWit
       __$$ServiceStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {Map<String, ServiceCacheData> contentCacheData,
-      String? message,
-      DateTime? date,
-      bool showExpired,
-      Map<String, ServiceCacheData> expiredContentCacheData,
-      String? eventData});
+  $Res call({Map<String, ServiceCacheData> contentCacheData, String? message, DateTime? fetchDate});
 }
 
 /// @nodoc
@@ -118,10 +88,7 @@ class __$$ServiceStateImplCopyWithImpl<$Res> extends _$ServiceStateCopyWithImpl<
   $Res call({
     Object? contentCacheData = null,
     Object? message = freezed,
-    Object? date = freezed,
-    Object? showExpired = null,
-    Object? expiredContentCacheData = null,
-    Object? eventData = freezed,
+    Object? fetchDate = freezed,
   }) {
     return _then(_$ServiceStateImpl(
       contentCacheData: null == contentCacheData
@@ -132,22 +99,10 @@ class __$$ServiceStateImplCopyWithImpl<$Res> extends _$ServiceStateCopyWithImpl<
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String?,
-      date: freezed == date
-          ? _value.date
-          : date // ignore: cast_nullable_to_non_nullable
+      fetchDate: freezed == fetchDate
+          ? _value.fetchDate
+          : fetchDate // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      showExpired: null == showExpired
-          ? _value.showExpired
-          : showExpired // ignore: cast_nullable_to_non_nullable
-              as bool,
-      expiredContentCacheData: null == expiredContentCacheData
-          ? _value._expiredContentCacheData
-          : expiredContentCacheData // ignore: cast_nullable_to_non_nullable
-              as Map<String, ServiceCacheData>,
-      eventData: freezed == eventData
-          ? _value.eventData
-          : eventData // ignore: cast_nullable_to_non_nullable
-              as String?,
     ));
   }
 }
@@ -156,14 +111,8 @@ class __$$ServiceStateImplCopyWithImpl<$Res> extends _$ServiceStateCopyWithImpl<
 @JsonSerializable()
 class _$ServiceStateImpl implements _ServiceState {
   const _$ServiceStateImpl(
-      {final Map<String, ServiceCacheData> contentCacheData = const <String, ServiceCacheData>{},
-      this.message,
-      this.date,
-      this.showExpired = true,
-      final Map<String, ServiceCacheData> expiredContentCacheData = const <String, ServiceCacheData>{},
-      this.eventData})
-      : _contentCacheData = contentCacheData,
-        _expiredContentCacheData = expiredContentCacheData;
+      {final Map<String, ServiceCacheData> contentCacheData = const <String, ServiceCacheData>{}, this.message, this.fetchDate})
+      : _contentCacheData = contentCacheData;
 
   factory _$ServiceStateImpl.fromJson(Map<String, dynamic> json) => _$$ServiceStateImplFromJson(json);
 
@@ -179,26 +128,11 @@ class _$ServiceStateImpl implements _ServiceState {
   @override
   final String? message;
   @override
-  final DateTime? date;
-// custom
-  @override
-  @JsonKey()
-  final bool showExpired;
-  final Map<String, ServiceCacheData> _expiredContentCacheData;
-  @override
-  @JsonKey()
-  Map<String, ServiceCacheData> get expiredContentCacheData {
-    if (_expiredContentCacheData is EqualUnmodifiableMapView) return _expiredContentCacheData;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(_expiredContentCacheData);
-  }
-
-  @override
-  final String? eventData;
+  final DateTime? fetchDate;
 
   @override
   String toString() {
-    return 'ServiceState(contentCacheData: $contentCacheData, message: $message, date: $date, showExpired: $showExpired, expiredContentCacheData: $expiredContentCacheData, eventData: $eventData)';
+    return 'ServiceState(contentCacheData: $contentCacheData, message: $message, fetchDate: $fetchDate)';
   }
 
   @override
@@ -208,16 +142,12 @@ class _$ServiceStateImpl implements _ServiceState {
             other is _$ServiceStateImpl &&
             const DeepCollectionEquality().equals(other._contentCacheData, _contentCacheData) &&
             (identical(other.message, message) || other.message == message) &&
-            (identical(other.date, date) || other.date == date) &&
-            (identical(other.showExpired, showExpired) || other.showExpired == showExpired) &&
-            const DeepCollectionEquality().equals(other._expiredContentCacheData, _expiredContentCacheData) &&
-            (identical(other.eventData, eventData) || other.eventData == eventData));
+            (identical(other.fetchDate, fetchDate) || other.fetchDate == fetchDate));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, const DeepCollectionEquality().hash(_contentCacheData), message, date, showExpired,
-      const DeepCollectionEquality().hash(_expiredContentCacheData), eventData);
+  int get hashCode => Object.hash(runtimeType, const DeepCollectionEquality().hash(_contentCacheData), message, fetchDate);
 
   @JsonKey(ignore: true)
   @override
@@ -233,13 +163,8 @@ class _$ServiceStateImpl implements _ServiceState {
 }
 
 abstract class _ServiceState implements ServiceState {
-  const factory _ServiceState(
-      {final Map<String, ServiceCacheData> contentCacheData,
-      final String? message,
-      final DateTime? date,
-      final bool showExpired,
-      final Map<String, ServiceCacheData> expiredContentCacheData,
-      final String? eventData}) = _$ServiceStateImpl;
+  const factory _ServiceState({final Map<String, ServiceCacheData> contentCacheData, final String? message, final DateTime? fetchDate}) =
+      _$ServiceStateImpl;
 
   factory _ServiceState.fromJson(Map<String, dynamic> json) = _$ServiceStateImpl.fromJson;
 
@@ -248,13 +173,7 @@ abstract class _ServiceState implements ServiceState {
   @override
   String? get message;
   @override
-  DateTime? get date;
-  @override // custom
-  bool get showExpired;
-  @override
-  Map<String, ServiceCacheData> get expiredContentCacheData;
-  @override
-  String? get eventData;
+  DateTime? get fetchDate;
   @override
   @JsonKey(ignore: true)
   _$$ServiceStateImplCopyWith<_$ServiceStateImpl> get copyWith => throw _privateConstructorUsedError;

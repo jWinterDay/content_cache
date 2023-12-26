@@ -31,25 +31,24 @@ class ServiceRunner extends ValueNotifier<ServiceState> {
     });
   }
 
-  Map<String, ServiceCacheData> get _expired {
-    return <String, ServiceCacheData>{...value.contentCacheData}
-      ..removeWhere((String key, ServiceCacheData value) {
-        final bool itemExpired = value.remainTtl < 0;
+  // Map<String, ServiceCacheData> get _expired {
+  //   return <String, ServiceCacheData>{...value.contentCacheData}..removeWhere((String key, ServiceCacheData value) {
+  //       final bool itemExpired = value.remainTtl < 0;
 
-        return itemExpired;
-      });
-  }
+  //       return itemExpired;
+  //     });
+  // }
 
-  void toggleShowExpired() {
-    final bool nextShowExpired = !value.showExpired;
+  // void toggleShowExpired() {
+  //   final bool nextShowExpired = !value.showExpired;
 
-    value = value.copyWith(
-      showExpired: nextShowExpired,
-      expiredContentCacheData: nextShowExpired ? <String, ServiceCacheData>{} : _expired,
-    );
+  //   value = value.copyWith(
+  //     showExpired: nextShowExpired,
+  //     expiredContentCacheData: nextShowExpired ? <String, ServiceCacheData>{} : _expired,
+  //   );
 
-    notifyListeners();
-  }
+  //   notifyListeners();
+  // }
 
   Future<void> fetchAll() async {
     try {
@@ -58,30 +57,53 @@ class ServiceRunner extends ValueNotifier<ServiceState> {
       );
       final Map<String, ServiceCacheData> result = await compute(_parseResult, response);
 
-      // fake
-      // final Map<String, ServiceCacheData> result = <String, ServiceCacheData>{
-      //   'test1': ServiceCacheData(
-      //     content: List.generate(500, (index) => '$index').join(),
-      //     ttl: 666,
-      //     date: DateTime.now().toString(),
-      //   ),
-      // };
-
       value = value.copyWith(
-        date: DateTime.now(),
+        fetchDate: DateTime.now(),
         contentCacheData: result,
-        expiredContentCacheData: _expired,
+        // expiredContentCacheData: _expired,
         message: 'Successfully fetched ${result.length} items',
       );
     } on Object catch (err) {
       value = ServiceState(
-        date: DateTime.now(),
+        fetchDate: DateTime.now(),
         message: 'Error $err',
       );
     }
 
     notifyListeners();
   }
+
+  // Future<void> addNew() async {
+  //   try {
+  //     final Response response = await serviceManager.callServiceExtensionOnMainIsolate(
+  //       'ext.content_cache.addNew',
+  //     );
+  //     // final Map<String, ServiceCacheData> result = await compute(_parseResult, response);
+
+  //     // // fake
+  //     // // final Map<String, ServiceCacheData> result = <String, ServiceCacheData>{
+  //     // //   'test1': ServiceCacheData(
+  //     // //     content: List.generate(500, (index) => '$index').join(),
+  //     // //     ttl: 666,
+  //     // //     date: DateTime.now().toString(),
+  //     // //   ),
+  //     // // };
+
+  //     // value = value.copyWith(
+  //     //   date: DateTime.now(),
+  //     //   contentCacheData: result,
+  //     //   expiredContentCacheData: _expired,
+  //     //   message: 'Successfully fetched ${result.length} items',
+  //     // );
+  //   } on Object catch (err) {
+  //     value = ServiceState(
+  //       date: DateTime.now(),
+  //       message: 'Error $err',
+  //     );
+  //   }
+
+  //   notifyListeners();
+  // }
 
   Future<void> clear(String? key) async {
     try {
@@ -98,14 +120,14 @@ class ServiceRunner extends ValueNotifier<ServiceState> {
       final Map<String, ServiceCacheData> result = await compute(_parseResult, response);
 
       value = value.copyWith(
-        date: DateTime.now(),
+        fetchDate: DateTime.now(),
         contentCacheData: result,
-        expiredContentCacheData: _expired,
+        // expiredContentCacheData: _expired,
         message: 'Successfully clear. Key: $key',
       );
     } on Object catch (err) {
       value = value.copyWith(
-        date: DateTime.now(),
+        fetchDate: DateTime.now(),
         message: 'Error $err',
       );
     }

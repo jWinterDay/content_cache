@@ -42,7 +42,7 @@ class ContentCacheImpl implements ContentCache {
   static bool _initialized = false;
 
   static const String _getAllName = 'ext.content_cache.getAll';
-  // static const String _addName = 'ext.content_cache.add';
+  // static const String _addNewName = 'ext.content_cache.addNew';
   static const String _clearName = 'ext.content_cache.clearAll';
 
   ServiceExtensionResponse _serviceResponse() {
@@ -133,16 +133,16 @@ class ContentCacheImpl implements ContentCache {
       return info.content;
     }
 
-    final DateTime now = DateTime.now();
+    // final DateTime now = DateTime.now();
 
-    final bool isExpired = info.date.add(info.ttl).isBefore(now);
-    if (isExpired) {
-      cache.remove(key);
+    // final bool isExpired = info.date.add(info.ttl).isBefore(now);
+    // if (isExpired) {
+    //   cache.remove(key);
 
-      _notify();
+    //   _notify();
 
-      return null;
-    }
+    //   return null;
+    // }
 
     return info.content;
   }
@@ -163,6 +163,13 @@ class ContentCacheImpl implements ContentCache {
 
     onChangeStreamController.add(key);
 
+    // delete from cache
+    Future<void>.delayed(ttl, () {
+      cache.remove(key);
+
+      _notify();
+    });
+
     _notify();
   }
 
@@ -180,6 +187,7 @@ class ContentCacheImpl implements ContentCache {
     cache.remove(key);
   }
 
+  @mustCallSuper
   @override
   void dispose() {
     unawaited(onChangeStreamController.close());
@@ -189,17 +197,5 @@ class ContentCacheImpl implements ContentCache {
     Map<dynamic, dynamic> data = const <dynamic, dynamic>{},
   }) {
     developer.postEvent('content_cache:content_cache_changed', data);
-
-    // final Map<String, dynamic> fmt = cache.map((Object key, Info<dynamic> value) {
-    //   return MapEntry<String, dynamic>(
-    //     key.toString(),
-    //     value.toString(),
-    //     // json.encode(value.toMap()),
-    //   );
-    // });
-
-    // // return ServiceExtensionResponse.result(jsonEncode(fmt));
-
-    // postEvent('ext.content_cache.getAll', fmt);
   }
 }

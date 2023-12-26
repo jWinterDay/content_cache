@@ -17,11 +17,11 @@ class ServiceState with _$ServiceState {
   const factory ServiceState({
     @Default(<String, ServiceCacheData>{}) Map<String, ServiceCacheData> contentCacheData,
     String? message,
-    DateTime? date,
+    DateTime? fetchDate,
 
     // custom
-    @Default(true) bool showExpired,
-    @Default(<String, ServiceCacheData>{}) Map<String, ServiceCacheData> expiredContentCacheData,
+    // @Default(true) bool showExpired,
+    // @Default(<String, ServiceCacheData>{}) Map<String, ServiceCacheData> expiredContentCacheData,
     // String? eventData,
   }) = _ServiceState;
 

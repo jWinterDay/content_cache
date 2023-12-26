@@ -12,20 +12,11 @@ _$ServiceStateImpl _$$ServiceStateImplFromJson(Map<String, dynamic> json) => _$S
           ) ??
           const <String, ServiceCacheData>{},
       message: json['message'] as String?,
-      date: json['date'] == null ? null : DateTime.parse(json['date'] as String),
-      showExpired: json['showExpired'] as bool? ?? true,
-      expiredContentCacheData: (json['expiredContentCacheData'] as Map<String, dynamic>?)?.map(
-            (k, e) => MapEntry(k, ServiceCacheData.fromJson(e as Map<String, dynamic>)),
-          ) ??
-          const <String, ServiceCacheData>{},
-      eventData: json['eventData'] as String?,
+      fetchDate: json['fetchDate'] == null ? null : DateTime.parse(json['fetchDate'] as String),
     );
 
 Map<String, dynamic> _$$ServiceStateImplToJson(_$ServiceStateImpl instance) => <String, dynamic>{
       'contentCacheData': instance.contentCacheData.map((k, e) => MapEntry(k, e.toJson())),
       'message': instance.message,
-      'date': instance.date?.toIso8601String(),
-      'showExpired': instance.showExpired,
-      'expiredContentCacheData': instance.expiredContentCacheData.map((k, e) => MapEntry(k, e.toJson())),
-      'eventData': instance.eventData,
+      'fetchDate': instance.fetchDate?.toIso8601String(),
     };

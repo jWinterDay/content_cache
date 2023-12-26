@@ -30,7 +30,6 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
     // fetch
     _runner.fetchAll();
 
-    // TODO
     // _fetchTimer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
     //   if (!mounted) {
     //     return;
@@ -62,10 +61,10 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            if (state.date != null) Text(state.date.toString()),
+            if (state.fetchDateTimeStr != null) Text('fetch date: ${state.fetchDateTimeStr}'),
             if (state.message != null) Text(state.message!),
 
-            Text('event = ${state.eventData}'),
+            // Text('event = ${state.eventData}'),
 
             // Text(
             //   '----expired === ${state.showExpired} filteredContentCacheData = ${state.expiredContentCacheData.keys} all = ${state.contentCacheData}',
@@ -86,17 +85,17 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
                 // show expired
                 const SizedBox(width: 32),
 
-                Row(
-                  children: <Widget>[
-                    const Text('Show Expired'),
-                    Checkbox(
-                      value: state.showExpired,
-                      onChanged: (bool? val) {
-                        _runner.toggleShowExpired();
-                      },
-                    ),
-                  ],
-                ),
+                // Row(
+                //   children: <Widget>[
+                //     const Text('Show Expired'),
+                //     Checkbox(
+                //       value: state.showExpired,
+                //       onChanged: (bool? val) {
+                //         _runner.toggleShowExpired();
+                //       },
+                //     ),
+                //   ],
+                // ),
               ],
             ),
 
@@ -104,7 +103,7 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
 
             // if (_loading) const LinearProgressIndicator(),
 
-            if (state.resultUiShownData.isEmpty)
+            if (state.contentCacheData.isEmpty)
               const Expanded(
                 child: Text('ContentCache. No data'),
               )
@@ -112,10 +111,10 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
               Expanded(
                 child: ListView.builder(
                   // reverse: true,
-                  itemCount: state.resultUiShownData.length,
+                  itemCount: state.contentCacheData.length,
                   itemBuilder: (BuildContext _, int index) {
-                    final String key = state.resultUiShownData.keys.elementAt(index);
-                    final ServiceCacheData? data = state.resultUiShownData[key];
+                    final String key = state.contentCacheData.keys.elementAt(index);
+                    final ServiceCacheData? data = state.contentCacheData[key];
 
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -145,17 +144,17 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
                                   ),
 
                                   // remains
-                                  if (data != null) ...<Widget>[
-                                    Text(
-                                      data.remainTtl >= 0
-                                          ? 'remain(sec): ${data.remainTtl}'
-                                          : 'expired',
-                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 16,
-                                          ),
-                                    ),
-                                  ],
+                                  // if (data != null) ...<Widget>[
+                                  //   Text(
+                                  //     data.remainTtl >= 0
+                                  //         ? 'remain(sec): ${data.remainTtl}'
+                                  //         : 'expired',
+                                  //     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  //           fontWeight: FontWeight.w600,
+                                  //           fontSize: 16,
+                                  //         ),
+                                  //   ),
+                                  // ],
 
                                   const Spacer(),
 
@@ -191,8 +190,9 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
                               if (data != null) ...<Widget>[
                                 Row(
                                   children: <Widget>[
-                                    Expanded(
-                                      child: Text('create date: ${data.date}'),
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 24),
+                                      child: Text('create date: ${data.fmtDateTimeStr}'),
                                     ),
                                     Text('ttl(sec): ${data.ttl}'),
                                   ],
