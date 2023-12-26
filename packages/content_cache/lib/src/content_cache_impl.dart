@@ -34,6 +34,21 @@ class Info<T> {
 class ContentCacheImpl implements ContentCache {
   ContentCacheImpl._() {
     _initExtension();
+
+    _clearTimer = Timer.periodic(const Duration(seconds: 1), (Timer _) {
+      final DateTime now = DateTime.now();
+
+      final Map<Object, Info<dynamic>> nextContent = <Object, Info<dynamic>>{...cache};
+
+      nextContent.forEach((Object key, Info<dynamic> value) {
+        final bool isExpired = value.date.add(value.ttl).isBefore(now);
+        if (isExpired) {
+          cache.remove(key);
+
+          _notify();
+        }
+      });
+    });
   }
 
   static ContentCacheImpl get instance => _instance;
@@ -44,6 +59,8 @@ class ContentCacheImpl implements ContentCache {
   static const String _getAllName = 'ext.content_cache.getAll';
   // static const String _addNewName = 'ext.content_cache.addNew';
   static const String _clearName = 'ext.content_cache.clearAll';
+
+  Timer? _clearTimer;
 
   ServiceExtensionResponse _serviceResponse() {
     // final DateTime now = DateTime.now();
@@ -129,19 +146,8 @@ class ContentCacheImpl implements ContentCache {
       return null;
     }
 
-    if (force) {
-      return info.content;
-    }
-
-    // final DateTime now = DateTime.now();
-
-    // final bool isExpired = info.date.add(info.ttl).isBefore(now);
-    // if (isExpired) {
-    //   cache.remove(key);
-
-    //   _notify();
-
-    //   return null;
+    // if (force) {
+    //   return info.content;
     // }
 
     return info.content;
@@ -163,13 +169,6 @@ class ContentCacheImpl implements ContentCache {
 
     onChangeStreamController.add(key);
 
-    // delete from cache
-    Future<void>.delayed(ttl, () {
-      cache.remove(key);
-
-      _notify();
-    });
-
     _notify();
   }
 
@@ -190,6 +189,8 @@ class ContentCacheImpl implements ContentCache {
   @mustCallSuper
   @override
   void dispose() {
+    _clearTimer?.cancel();
+
     unawaited(onChangeStreamController.close());
   }
 
