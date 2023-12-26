@@ -179,6 +179,20 @@ class _ServiceDevtoolsExtensionState extends State<ServiceDevtoolsExtension> {
                                           ? null
                                           : () {
                                               Clipboard.setData(ClipboardData(text: data.content));
+
+                                              ScaffoldMessenger.of(context)
+                                                ..clearSnackBars()
+                                                ..showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      'Content for key $key copied',
+                                                      // style: Theme.of(context).textTheme.bodyMedium,
+                                                    ),
+                                                    duration: const Duration(seconds: 5),
+                                                    // backgroundColor:
+                                                    //     context.dataColorsX.darkPrimary87,
+                                                  ),
+                                                );
                                             },
                                       icon: const Icon(Icons.copy),
                                     ),
