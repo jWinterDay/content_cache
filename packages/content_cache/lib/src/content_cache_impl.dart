@@ -38,16 +38,25 @@ class ContentCacheImpl implements ContentCache {
     _clearTimer = Timer.periodic(const Duration(seconds: 1), (Timer _) {
       final DateTime now = DateTime.now();
 
-      final Map<Object, Info<dynamic>> nextContent = <Object, Info<dynamic>>{...cache};
+      bool needNotify = false;
 
-      nextContent.forEach((Object key, Info<dynamic> value) {
-        final bool isExpired = value.date.add(value.ttl).isBefore(now);
-        if (isExpired) {
-          cache.remove(key);
+      final List<Object> keys = <Object>[...cache.keys];
 
-          _notify();
+      for (final Object key in keys) {
+        final Info<dynamic>? value = cache[key];
+
+        if (value != null) {
+          final bool isExpired = value.date.add(value.ttl).isBefore(now);
+          if (isExpired) {
+            needNotify = true;
+            cache.remove(key);
+          }
         }
-      });
+      }
+
+      if (needNotify) {
+        _notify();
+      }
     });
   }
 
