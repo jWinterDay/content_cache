@@ -1,3 +1,5 @@
+## 0.1.01
+    subscriptions
 ## 0.0.10
     refactoring
 ## 0.0.9
