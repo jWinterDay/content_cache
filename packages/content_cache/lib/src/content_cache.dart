@@ -10,16 +10,21 @@ class Event<T> {
 
   final String name;
   final T? content;
+
+  @override
+  String toString() {
+    return '$name: $content';
+  }
 }
 
 typedef EventHandler<T> = FutureOr<void> Function(
-  T? content,
+  Event<T?> event,
+  // T? content,
 );
 
 @diService
 abstract class ContentCache {
-  // Stream<Event<dynamic>> get onChangeStream;
-  StreamSubscription<Event<T>> on<T>(String name, EventHandler<T> handler);
+  StreamSubscription<Event<T?>> on<T>(String name, EventHandler<T?> handler);
 
   void save<T>(String key, T content, {Duration ttl});
 

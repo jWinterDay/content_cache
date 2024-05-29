@@ -208,12 +208,6 @@ class ContentCacheImpl implements ContentCache {
     _clearTimer?.cancel();
 
     unawaited(onChangeStreamController.close());
-
-    // Future.wait<void>(
-    //   _subscriptions.values.map((StreamSubscription<dynamic> s) {
-    //     return s.cancel();
-    //   }),
-    // );
   }
 
   void _notify({
@@ -223,21 +217,23 @@ class ContentCacheImpl implements ContentCache {
   }
 
   @override
-  StreamSubscription<Event<T>> on<T>(String name, EventHandler<T?> handler) {
-    // final StreamSubscription<Event<T>> listener =
+  StreamSubscription<Event<T?>> on<T>(String name, EventHandler<T?> handler) {
     // ignore: cancel_subscriptions
-    final StreamSubscription<Event<dynamic>> listener = onChangeStreamController.stream.where((Event<dynamic> event) {
-      return event.name == name;
-    }).listen((Event<dynamic> event) async {
-      final dynamic raw = event.content;
+    final StreamSubscription<Event<dynamic>> listener = onChangeStreamController.stream
+        .where((Event<dynamic> event) {
+          final dynamic raw = event.content;
 
-      if (raw is! T) {
-        return;
-      }
+          if (raw is! T?) {
+            return false;
+          }
 
-      await handler(raw);
-    });
+          return event.name == name;
+        })
+        .cast<Event<T?>>()
+        .listen((Event<T?> event) async {
+          await handler(event);
+        });
 
-    return listener as StreamSubscription<Event<T>>;
+    return listener as StreamSubscription<Event<T?>>;
   }
 }
