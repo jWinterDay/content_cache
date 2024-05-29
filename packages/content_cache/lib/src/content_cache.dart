@@ -19,7 +19,7 @@ typedef EventHandler<T> = FutureOr<void> Function(
 @diService
 abstract class ContentCache {
   // Stream<Event<dynamic>> get onChangeStream;
-  StreamSubscription<Event<dynamic>> on<Object>(String name, EventHandler<Object> handler);
+  StreamSubscription<Event<T>> on<T>(String name, EventHandler<T> handler);
 
   void save<T>(String key, T content, {Duration ttl});
 

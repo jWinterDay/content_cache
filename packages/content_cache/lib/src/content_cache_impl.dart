@@ -223,8 +223,9 @@ class ContentCacheImpl implements ContentCache {
   }
 
   @override
-  StreamSubscription<Event<dynamic>> on<T>(String name, EventHandler<T?> handler) {
+  StreamSubscription<Event<T>> on<T>(String name, EventHandler<T?> handler) {
     // final StreamSubscription<Event<T>> listener =
+    // ignore: cancel_subscriptions
     final StreamSubscription<Event<dynamic>> listener = onChangeStreamController.stream.where((Event<dynamic> event) {
       return event.name == name;
     }).listen((Event<dynamic> event) async {
@@ -237,6 +238,6 @@ class ContentCacheImpl implements ContentCache {
       await handler(raw);
     });
 
-    return listener;
+    return listener as StreamSubscription<Event<T>>;
   }
 }
