@@ -26,7 +26,7 @@ typedef EventHandler<T> = FutureOr<void> Function(
 abstract class ContentCache {
   StreamSubscription<Event<T?>> on<T>(String name, EventHandler<T?> handler);
 
-  void save<T>(String key, T content, {Duration ttl});
+  void save<T>(String key, T? content, {Duration ttl});
 
   bool isExists(String key);
 
