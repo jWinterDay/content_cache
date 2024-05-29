@@ -14,7 +14,7 @@ class Info<T> {
   }) : date = DateTime.now();
 
   final DateTime date;
-  final T content;
+  final T? content;
   final Duration ttl;
 
   @override
@@ -40,9 +40,9 @@ class ContentCacheImpl implements ContentCache {
 
       bool needNotify = false;
 
-      final List<Object> keys = <Object>[...cache.keys];
+      final List<String> keys = <String>[...cache.keys];
 
-      for (final Object key in keys) {
+      for (final String key in keys) {
         final Info<dynamic>? value = cache[key];
 
         if (value != null) {
@@ -69,6 +69,9 @@ class ContentCacheImpl implements ContentCache {
   // static const String _addNewName = 'ext.content_cache.addNew';
   static const String _clearName = 'ext.content_cache.clearAll';
 
+  // final Map<String, StreamSubscription<dynamic>> _subscriptions = <String, StreamSubscription<dynamic>>{};
+  // final List<StreamSubscription<dynamic>> _subscriptions = <StreamSubscription<dynamic>>[];
+
   Timer? _clearTimer;
 
   ServiceExtensionResponse _serviceResponse() {
@@ -84,9 +87,9 @@ class ContentCacheImpl implements ContentCache {
     // });
 
     try {
-      final Map<String, dynamic> fmt = cache.map((Object key, Info<dynamic> value) {
+      final Map<String, dynamic> fmt = cache.map((String key, Info<dynamic> value) {
         return MapEntry<String, dynamic>(
-          key.toString(),
+          key,
           value.toMap(),
         );
       });
@@ -128,23 +131,23 @@ class ContentCacheImpl implements ContentCache {
   }
 
   @visibleForTesting
-  StreamController<Object> onChangeStreamController = StreamController<Object>.broadcast();
+  StreamController<Event<dynamic>> onChangeStreamController = StreamController<Event<dynamic>>.broadcast();
 
-  @override
-  Stream<Object> get onChangeStream => onChangeStreamController.stream.asBroadcastStream();
+  // @override
+  // Stream<Event<dynamic>> get onChangeStream => onChangeStreamController.stream.asBroadcastStream();
 
   static const Duration _defaultTtl = Duration(seconds: 30);
 
   @visibleForTesting
-  final Map<Object, Info<dynamic>> cache = <Object, Info<dynamic>>{};
+  final Map<String, Info<dynamic>> cache = <String, Info<dynamic>>{};
 
   @override
-  bool isExists(Object key) {
+  bool isExists(String key) {
     return cache.containsKey(key);
   }
 
   @override
-  T? retrieve<T>(Object key, {bool force = false}) {
+  T? retrieve<T>(String key, {bool force = false}) {
     final Info<dynamic>? info = cache[key];
 
     if (info == null) {
@@ -155,44 +158,48 @@ class ContentCacheImpl implements ContentCache {
       return null;
     }
 
-    // if (force) {
-    //   return info.content;
-    // }
-
     return info.content;
   }
 
   @override
-  T retrieveOrDefault<T>(Object key, T defaultVal) {
+  T? retrieveOrDefault<T>(String key, T? defaultVal) {
     final T? raw = retrieve(key);
 
     return raw ?? defaultVal;
   }
 
   @override
-  void save<T>(Object key, T content, {Duration ttl = _defaultTtl}) {
+  void save<T>(String key, T? content, {Duration ttl = _defaultTtl}) {
     cache[key] = Info<T>(
       content,
       ttl: ttl,
     );
 
-    onChangeStreamController.add(key);
+    onChangeStreamController.add(Event<T>(key, content));
 
     _notify();
   }
 
   @override
   void clearAll() {
-    // onChangeStreamController.add(null);
-
     cache.clear();
+
+    final List<String> keys = <String>[...cache.keys];
+
+    for (final String key in keys) {
+      onChangeStreamController.add(Event<dynamic>(key, null));
+    }
 
     _notify();
   }
 
   @override
-  void remove(Object key) {
+  void remove(String key) {
     cache.remove(key);
+
+    onChangeStreamController.add(Event<dynamic>(key, null));
+
+    _notify();
   }
 
   @mustCallSuper
@@ -201,11 +208,35 @@ class ContentCacheImpl implements ContentCache {
     _clearTimer?.cancel();
 
     unawaited(onChangeStreamController.close());
+
+    // Future.wait<void>(
+    //   _subscriptions.values.map((StreamSubscription<dynamic> s) {
+    //     return s.cancel();
+    //   }),
+    // );
   }
 
   void _notify({
     Map<dynamic, dynamic> data = const <dynamic, dynamic>{},
   }) {
     developer.postEvent('content_cache:content_cache_changed', data);
+  }
+
+  @override
+  StreamSubscription<Event<dynamic>> on<T>(String name, EventHandler<T?> handler) {
+    // final StreamSubscription<Event<T>> listener =
+    final StreamSubscription<Event<dynamic>> listener = onChangeStreamController.stream.where((Event<dynamic> event) {
+      return event.name == name;
+    }).listen((Event<dynamic> event) async {
+      final dynamic raw = event.content;
+
+      if (raw is! T) {
+        return;
+      }
+
+      await handler(raw);
+    });
+
+    return listener;
   }
 }

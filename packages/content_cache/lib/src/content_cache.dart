@@ -1,20 +1,37 @@
+import 'dart:async';
+
 import 'package:di_visualizer_annotation/di_visualizer_annotation.dart';
+
+class Event<T> {
+  Event(
+    this.name,
+    this.content,
+  );
+
+  final String name;
+  final T? content;
+}
+
+typedef EventHandler<T> = FutureOr<void> Function(
+  T? content,
+);
 
 @diService
 abstract class ContentCache {
-  Stream<Object> get onChangeStream;
+  // Stream<Event<dynamic>> get onChangeStream;
+  StreamSubscription<Event<dynamic>> on<Object>(String name, EventHandler<Object> handler);
 
-  void save<T>(Object key, T content, {Duration ttl});
+  void save<T>(String key, T content, {Duration ttl});
 
-  bool isExists(Object key);
+  bool isExists(String key);
 
-  T? retrieve<T>(Object key);
+  T? retrieve<T>(String key);
 
-  T retrieveOrDefault<T>(Object key, T defaultVal);
+  T? retrieveOrDefault<T>(String key, T? defaultVal);
 
   void clearAll();
 
-  void remove(Object key);
+  void remove(String key);
 
   void dispose();
 }
